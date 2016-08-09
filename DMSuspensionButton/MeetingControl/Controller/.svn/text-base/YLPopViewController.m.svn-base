@@ -1,0 +1,622 @@
+//
+//  YLPopViewController.m
+//  Dangdang
+//
+//  Created by demin on 16/7/6.
+//  Copyright © 2016年 BoTong. All rights reserved.
+//
+
+#import "YLPopViewController.h"
+#import "UITextView+YLTextView.h"
+#import "MyGroupListModel.h"
+#import "EMChatVCDataModel.h"
+#import "MeetingDetailModel.h"
+
+@interface YLPopViewController ()<UITextViewDelegate>
+
+@property (nonatomic,strong) UILabel *titleLabel; //标题
+@property (nonatomic,strong) UITextView *textView;//textview
+@property (nonatomic,strong) UIButton *sendGroupButton;//发到群聊
+@property (nonatomic,strong) UIButton *sendMeButton;//发给自己
+@property (nonatomic,strong) UIButton *noButton;//取消
+@property (nonatomic,strong) UIButton *yesButton;//保存草稿
+@property (nonatomic,strong) UILabel *placeHolderLabel;//占位字符
+@property (nonatomic,strong) UILabel *wordCountLabel;//字数
+@property (nonatomic,strong) UIView *lineView;
+
+
+@end
+
+@implementation YLPopViewController
+{
+    UIWindow *_window;
+}
+
+#pragma mark - define
+
+#define BTN_MARGIN_BOTOOM 0 //按钮底部边距
+#define BTN_MARGIN_LR 0 //按钮左右边距
+#define BTN_MARGIN_MIDDLE 0 //按钮中间边距
+#define BTN_HEIGHT 40 //按钮高度
+
+#pragma mark - 懒加载初始化
+
+#pragma mark - 生命周期
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.view.backgroundColor = [[UIColor grayColor] colorWithAlphaComponent:0.2];
+  
+    
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
+}
+
+- (void)dealloc {
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - 控件创建
+
+#pragma mark - getter / setter
+- (void)addContentView {
+    
+    self.contentView = [[UIView alloc] init];
+    self.contentView.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:1];
+    self.contentView.center = self.view.center;
+    self.contentView.layer.masksToBounds = YES;
+    self.contentView.layer.cornerRadius = 5;
+    [self.view addSubview:self.contentView];
+    
+    /*
+     *  顶部画线
+     */
+
+    self.lineView = [[UIView alloc] init];
+    self.lineView.backgroundColor = Rgb2UIColor(227, 227, 227);
+    [self.contentView addSubview:self.lineView];
+
+    /*
+     *  顶部按钮
+     */
+    
+    
+    self.noButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.yesButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.noButton.titleLabel.font = [UIFont systemFontOfSize:13.f];
+    self.yesButton.titleLabel.font = [UIFont systemFontOfSize:15.f];
+    [self.noButton setTitle:@"取消" forState:UIControlStateNormal];
+    [self.yesButton setTitle:@"保存草稿" forState:UIControlStateNormal];
+    [self.noButton setTitleColor:Rgb2UIColor(250, 122, 74) forState:UIControlStateNormal];
+    [self.yesButton setTitleColor:Rgb2UIColor(250, 122, 74) forState:UIControlStateNormal];
+    [self.yesButton setBackgroundImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+    [self.noButton setBackgroundImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+    [self.noButton addTarget:self action:@selector(hidden:) forControlEvents:UIControlEventTouchUpInside];
+    [self.yesButton addTarget:self action:@selector(touchYes:) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.noButton];
+    [self.contentView addSubview:self.yesButton];
+    
+    
+    /*
+     *  底部按钮
+     */
+    
+    
+    self.sendGroupButton = [UIButton buttonWithType:UIButtonTypeSystem];
+//    self.sendMeButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [self.sendGroupButton setTitle:@"发到群聊" forState:UIControlStateNormal];
+//    [self.sendMeButton setTitle:@"发给自己" forState:UIControlStateNormal];
+    [self.sendGroupButton setTitleColor:Rgb2UIColor(250, 122, 74) forState:UIControlStateNormal];
+//    [self.sendMeButton setTitleColor:Rgb2UIColor(250, 122, 74) forState:UIControlStateNormal];
+    
+    [self.sendGroupButton setBackgroundImage:[UIImage imageNamed:@"Rectangle 1"] forState:UIControlStateNormal];
+    [self.yesButton setBackgroundImage:[UIImage imageNamed:@"Rectangle 1"] forState:UIControlStateNormal];
+    [self.sendGroupButton addTarget:self action:@selector(sendGroupClick:) forControlEvents:UIControlEventTouchUpInside];
+//    [self.sendMeButton addTarget:self action:@selector(sendMeClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.sendGroupButton];
+//    [self.contentView addSubview:self.sendMeButton];
+
+    
+       /*
+     *  顶部label
+     */
+    
+    
+    self.titleLabel = [[UILabel alloc] init];
+    self.titleLabel.center = self.contentView.center;
+    self.titleLabel.font = [UIFont systemFontOfSize:16.f];
+    self.titleLabel.textAlignment = NSTextAlignmentCenter;
+    if (self.Title) {
+        self.titleLabel.text = self.Title;
+    }else {
+        self.titleLabel.text = @"提示";
+    }
+    
+    [self.contentView addSubview:self.titleLabel];
+    
+    
+    /*
+     *  中间textView
+     */
+    
+    
+    self.textView = [[UITextView alloc] init];
+    self.textView.backgroundColor = [UIColor whiteColor];
+    self.textView.delegate = self;
+    if (self.wordCount) {
+        /**
+         *  使用分类限制字数。此分类可以单独拿出去使用
+         *  分类使用runtime完美解决字数限制。（包括难以解决的词语联想）
+         */
+        self.textView.limitLength = @(self.wordCount);
+    }
+    self.textView.text = self.draftText;
+    [self.contentView addSubview:self.textView];
+    
+    
+    /*
+     *  占位字符
+     */
+    self.placeHolderLabel = [[UILabel alloc] init];
+    self.placeHolderLabel.hidden = NO;
+    self.placeHolderLabel.font = [UIFont systemFontOfSize:13.];
+    self.placeHolderLabel.textColor = [UIColor lightGrayColor];
+    [self.textView addSubview:self.placeHolderLabel];
+    
+    if (self.placeHolder) {
+        self.placeHolderLabel.text = self.placeHolder;
+    }else {
+//        self.placeHolderLabel.text = @"请在此处输入内容";
+    }
+    
+    
+    /*
+     *  字数记录
+     */
+    self.wordCountLabel = [[UILabel alloc] init];
+    
+    if (self.wordCount) {
+        self.wordCountLabel.text = [NSString stringWithFormat:@"0/%ld",self.wordCount];
+    }else {
+        self.wordCountLabel.hidden = YES;
+    }
+    
+    self.wordCountLabel.font = [UIFont systemFontOfSize:12.];
+    self.wordCountLabel.textAlignment = NSTextAlignmentCenter;
+    self.wordCountLabel.textColor = [UIColor lightGrayColor];
+    [self.textView addSubview:self.wordCountLabel];
+    
+    
+    
+    /*
+     *  出现的动画
+     */
+    
+    [self setAnimation];
+    
+    
+    
+}
+
+//出现的动画
+- (void)setAnimation {
+    
+    [UIView animateWithDuration:0.3 animations:^{
+        
+        
+        self.contentView.frame = CGRectMake(0, 0, self.contentViewSize.width, self.contentViewSize.height);
+        self.contentView.center = self.view.center;
+
+        self.contentView.backgroundColor = [UIColor colorWithRed:220 green:220 blue:220 alpha:220];
+        
+        
+    } completion:^(BOOL finished) {
+        
+        self.titleLabel.frame = CGRectMake(10, 0, self.contentViewSize.width - 20, 40);
+        
+        self.noButton.frame = CGRectMake(0, 0, 60, BTN_HEIGHT);
+        self.yesButton.frame = CGRectMake([UIScreen mainScreen].bounds.size.width-40-60-5, 0, 60, BTN_HEIGHT);
+        
+        self.sendGroupButton.frame = CGRectMake(0, CGRectGetHeight(self.contentView.frame) - BTN_HEIGHT, CGRectGetWidth(self.contentView.frame)/2+1, BTN_HEIGHT);
+        
+        self.yesButton.frame = CGRectMake(CGRectGetWidth(self.contentView.frame) / 2, CGRectGetHeight(self.contentView.frame) - BTN_HEIGHT, CGRectGetWidth(self.contentView.frame) / 2 + 1, BTN_HEIGHT);
+        
+        self.lineView.frame = CGRectMake(0, 39, self.contentViewSize.width, 0.5);
+        self.textView.frame = CGRectMake(0, 40, self.contentViewSize.width, self.contentViewSize.height - 80-1);
+        
+        self.placeHolderLabel.frame = CGRectMake(5, 5, CGRectGetWidth(self.textView.frame), 20);
+        
+        self.wordCountLabel.frame = CGRectMake(CGRectGetWidth(self.textView.frame) - 60, CGRectGetHeight(self.textView.frame) - 20, 60, 20);
+    }];
+    
+    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    [window addSubview:self.view];
+    [window.rootViewController addChildViewController:self];
+   
+    
+    
+}
+
+
+#pragma mark - 消息触发事件
+///键盘显示事件
+- (void)keyboardWillShow:(NSNotification *)notification {
+    
+    
+    //获取键盘高度，在不同设备上，以及中英文下是不同的
+    
+    CGFloat kbHeight = [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height;
+    
+    // 取得键盘的动画时间，这样可以在视图上移的时候更连贯
+    
+    double duration = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    
+    float boudsHeight = [UIScreen mainScreen].bounds.size.height;
+    //contentView底边距离键盘顶端的距离（有可能为负有可能为正）
+    float margin = boudsHeight - CGRectGetMaxY(self.contentView.frame) - kbHeight;
+    
+    //将视图上移计算好的偏移
+    NSLog(@"margin - %f",margin);
+    
+    if(margin < 0) {
+        
+        [UIView animateWithDuration:duration animations:^{
+            
+            CGRect newRect = CGRectMake(CGRectGetMinX(self.contentView.frame), CGRectGetMinY(self.contentView.frame) + margin, self.contentViewSize.width, self.contentViewSize.height);
+            self.contentView.frame = newRect;
+            
+        }];
+        
+        
+    }
+}
+
+///键盘消失事件
+- (void)keyboardWillHide:(NSNotification *)notify {
+    
+    // 键盘动画时间
+    
+    double duration = [[notify.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    //视图下沉恢复原状
+    
+    [UIView animateWithDuration:duration animations:^{
+        
+        CGRect origionRect = self.contentView.frame;
+        CGRect newRect = CGRectMake(origionRect.origin.x, origionRect.origin.y, self.contentViewSize.width, self.contentViewSize.height);
+        self.contentView.frame = newRect;
+        self.contentView.center = self.view.center;
+        
+        
+    }];
+}
+
+
+//消失动画
+- (void)hidden {
+    
+    self.textView.text = @"";
+    
+    [UIView animateWithDuration:0.3 animations:^{
+        
+        CGRect origionRect = self.contentView.frame;
+        CGRect newRect = CGRectMake(origionRect.origin.x, origionRect.origin.y, 0, 0);
+        self.contentView.frame = newRect;
+        self.contentView.alpha = 0;
+        self.contentView.center = self.view.center;
+        
+        [self.sendGroupButton setBackgroundImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+        [self.sendMeButton setBackgroundImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+        [self.yesButton setBackgroundImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+        [self.noButton setBackgroundImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+        self.sendGroupButton.frame = CGRectZero;
+        self.sendMeButton.frame = CGRectZero;
+        self.noButton.frame = CGRectZero;
+        self.yesButton.frame = CGRectZero;
+        self.sendGroupButton.alpha = 0;
+        self.sendMeButton.alpha = 0;
+        self.noButton.alpha = 0;
+        self.yesButton.alpha = 0;
+        
+        [self.titleLabel removeFromSuperview];
+        [self.placeHolderLabel removeFromSuperview];
+        [self.wordCountLabel removeFromSuperview];
+        self.textView.alpha = 0;
+        
+    } completion:^(BOOL finished) {
+        //删除整个视图
+        [self.view removeFromSuperview];
+        [self removeFromParentViewController];
+        
+        
+    }];
+}
+#pragma mark - 点击事件
+//取消
+-(void)hidden:(UIButton *)button {
+    
+    self.deselectBlock();
+    //消失动画
+    [self hidden];
+    
+    
+}
+//保存草稿
+- (void)touchYes:(UIButton *)button {
+    
+    [self.textView resignFirstResponder];
+//    __typeof (self)weakSelf = self;
+//    if (self.confirmBlock) {
+//        
+//        weakSelf.confirmBlock(weakSelf.textView.text);
+//    }
+    //保存会议纪要的草稿到本地
+    [[NSUserDefaults standardUserDefaults] setObject:self.textView.text forKey:@"MinutesDraft"];
+
+}
+//发到群聊
+- (void)sendGroupClick:(UIButton *)button {
+    
+    NSString *mseeageTabName = [NSString stringWithFormat:@"EMMessageListTable_%@",[BTCommonTool getPhoneNumber]];
+
+    SimplePersonInfoModel *userInfo = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSUserDefaults standardUserDefaults] objectForKey:@"userInfo"]];
+    
+    NSMutableArray *telArrM = [NSMutableArray array];
+    NSMutableArray *personArrM = [NSMutableArray array];
+    for (DetailPersonModel *model in self.peopleArrM) {
+        [telArrM addObject:model.mobile];
+        GroupPeopleData *people = [[GroupPeopleData alloc] init];
+        /*
+         mineUserData.ID = userInfo.userData.ID;
+         mineUserData.mobile = userInfo.userData.mobile;
+         mineUserData.avatar = userInfo.userData.avatar;
+         mineUserData.birthday = userInfo.userData.birthday;
+         mineUserData.sex = [userInfo.userData.sex integerValue];
+         mineUserData.nick = userInfo.userData.nick;
+         mineUserData.area = userInfo.userData.area;
+         mineUserData.activite = userInfo.userData.activite;
+         */
+        people.ID = (model.ID && ![model.ID isEqualToString:@"(null)"])? model.ID : @"";
+        people.mobile = model.mobile;
+        people.avatar = model.avatar;
+        people.birthday = @"";
+        people.sex = 0;
+        people.nick = model.nick;
+        people.area = @"";
+        people.activite = 1;
+        [personArrM addObject:people];
+    }
+    
+    kWEAK_SELF;
+    [BTCommonTool AFNetworkingRequestWithType:@"post" withShortURL:[NSString stringWithFormat:@"msg/create/%@",[BTCommonTool getPhoneNumber]] withpPrameters:@{@"to" : [telArrM componentsJoinedByString:@","]} showIndicatorView:NO success:^(NSDictionary *requestData) {
+        
+        if ([requestData[@"code"] isEqual:@(200)]){
+            NSDictionary *dict = requestData[@"data"];
+            EMMessageVCDataModel *model = [[EMMessageVCDataModel alloc] init];
+            model.groupID = dict[@"group_id"];
+            model.groupType = 1;
+            model.isMyGroup = 1;
+            model.groupName = dict[@"group_name"];
+            model.lastMessage = @" ";
+            model.lastTime = [[BTCommonTool getCurrentDateString] longLongValue];
+            
+            NSString *tabName = [NSString stringWithFormat:@"tab_%@",model.groupID];
+
+            
+            NSString *nowTimeStr = [BTCommonTool getCurrentDateString];
+            NSDate *senddate=[NSDate date];
+            NSDateFormatter *dateformatter=[[NSDateFormatter alloc]init];
+            [dateformatter setDateFormat:@"HH:mm"];
+            NSString *locationString=[dateformatter stringFromDate:senddate];
+            NSLog(@"%@",locationString);
+            EMChatVCDataModel *dataModel = [[EMChatVCDataModel alloc]init];
+            dataModel.incidentalDataModel = [[IncidentalDataModel alloc] init];
+            dataModel.incidentalDataModel.unReadCount = @"1";
+            dataModel.messageContent = self.textView.text;
+            dataModel.messageTime = [nowTimeStr longLongValue];
+            dataModel.messageTo = dict[@"group_id"];
+            dataModel.messageFrom = [BTCommonTool getPhoneNumber];
+            dataModel.messageFromWho = 1;
+            dataModel.messageType = 1;
+            dataModel.messageSendState = 1;
+            dataModel.messageId = [NSString stringWithFormat:@"tempId%@",@(arc4random()%20)];
+            dataModel.customMessageId = [NSString stringWithFormat:@"%@%@%@",[BTCommonTool getPhoneNumber],[BTCommonTool getCurrentDateString],@(arc4random()%20)];
+            dataModel.timeState = 1;
+            dataModel.isShowActivity = 0;
+            
+            MyGroupData *groupData = [[MyGroupData alloc] init];
+            [groupData setValuesForKeysWithDictionary:dict];
+            
+            [EMDBTool createGroupListTabelWithTableName:[NSString stringWithFormat:@"EMGroupPeopleListTable_%@",model.groupID] success:^(NSString *successString) {
+                NSLog(@"%@",successString);
+                GroupPeopleData *mineUserData = [[GroupPeopleData alloc] init];
+                mineUserData.ID = userInfo.userData.ID;
+                mineUserData.mobile = userInfo.userData.mobile;
+                mineUserData.avatar = userInfo.userData.avatar;
+                mineUserData.birthday = userInfo.userData.birthday;
+                mineUserData.sex = [userInfo.userData.sex integerValue];
+                mineUserData.nick = userInfo.userData.nick;
+                mineUserData.area = userInfo.userData.area;
+                mineUserData.activite = userInfo.userData.activite;
+                NSMutableArray *arrM = [NSMutableArray arrayWithArray:personArrM];
+                [arrM addObject:mineUserData];
+                [EMDBTool InsertGroupObjectWithTableName:[NSString stringWithFormat:@"EMGroupPeopleListTable_%@",model.groupID] with:arrM success:^(NSString *successStr) {
+                    NSLog(@"%@",successStr);
+                } failed:^(NSString *failStr) {
+                    NSLog(@"%@",failStr);
+                }];
+            } failed:^(NSString *failedString) {
+                NSLog(@"%@",failedString);
+            }];
+            
+            NSDictionary *userDataDic = @{@"groupNick":(([dict[@"group_name"] length] > 0 && ![dict[@"group_name"] isEqualToString:@"(null)"])? dict[@"group_name"] :@"NICK"),@"userAvatar":((userInfo.userData.avatar.length > 0 && ![userInfo.userData.avatar isEqualToString:@"(null)"])? userInfo.userData.avatar: @"AVATAR"),@"messageLength":@"LONG",@"userNick":(userInfo.userData.nick.length > 0? userInfo.userData.nick:@"NICK"),@"groupAvatar":@"AVATAR",@"messageId":dataModel.customMessageId,@"dataType":@"100"};
+            
+            
+            [EMDBTool InsertChatObjectWithTableName:tabName with:dataModel success:^(NSString *successString) {
+                
+                [EMDBTool createChatMemberRecevierListWithMessageID:dataModel.customMessageId success:^(NSString *successString) {
+                    NSLog(@"%@",successString);
+                    NSMutableArray *dataArr = [NSMutableArray array];
+                    for (GroupPeopleData *peopleData in self.peopleArrM) {
+                        [dataArr addObject:peopleData];
+                        ChatReceiverModel *chatReceiverModel = [[ChatReceiverModel alloc] init];
+                        chatReceiverModel.avatar = peopleData.avatar;
+                        chatReceiverModel.nickName = peopleData.nick;
+                        chatReceiverModel.mobile = peopleData.mobile;
+                        chatReceiverModel.isRead = @"0";
+                        
+                        [EMDBTool insertChatMemberRecevierListWithMessageID:dataModel.customMessageId with:chatReceiverModel success:^(NSString *successString) {
+                            NSLog(@"%@",successString);
+                        } failed:^(NSString *failedString) {
+                            NSLog(@"%@",failedString);
+                        }];
+                    }
+                    dataModel.incidentalDataModel.unReadCount = [NSString stringWithFormat:@"%@",@(dataArr.count)];
+                    [EMDBTool upDateTableName:tabName withParameres:@{@"incidentalData":[BTCommonTool dictionaryToJson:@{@"unReadCount":[NSString stringWithFormat:@"%@",@(dataArr.count)]}]} withRestrictions:@{@"customMessageId":dataModel.customMessageId} success:^(NSString *successString) {
+                        NSLog(@"%@",successString);
+                    } failed:^(NSString *failedString) {
+                        NSLog(@"%@",failedString);
+                    }];
+                } failed:^(NSString *failedString) {
+                    NSLog(@"%@",failedString);
+                }];
+                    
+                [IMManage IMSendTextMessageWithReceiver:model.groupID messageBody:weakSelf.textView.text withDataString:[BTCommonTool dictionaryToJson:userDataDic] complete:^(NSString *successString)
+                 {
+                     NSString *newId = successString;
+                     dataModel.messageSendState = 2;
+                     [EMDBTool upDataChatObjectSendStateWithTableName:tabName with:dataModel newId:newId state:2 newMessageTime:@"" success:^(NSString *successString) {
+                         dataModel.messageId = newId;
+                         //                 [self.messageArrM replaceObjectAtIndex:self.messageArrM.count-1 withObject:model];
+                         NSLog(@"状态修改成功");
+                         
+                     } failed:^(NSString *failedString) {
+                         
+                     }];
+                     EMMessageVCDataModel *messageModel = [[EMMessageVCDataModel alloc]init];
+                     messageModel.lastTime = [nowTimeStr longLongValue];
+                     messageModel.groupID = model.groupID;
+                     if ([EMDBTool getMessageDBData:mseeageTabName withGroupID:model.groupID].count > 0) {
+                         [EMDBTool upDataMessageViewWithTableName:mseeageTabName with:messageModel newCount:0 newTime:messageModel.lastTime newContent:dataModel.messageContent success:nil failed:nil];
+                         [EMDBTool upDataContactObjectWithTableName:mseeageTabName with:messageModel success:nil failed:nil];
+                     } else {
+                         messageModel.lastMessage = dataModel.messageContent;
+                         messageModel.lastTime = [nowTimeStr longLongValue];
+                         messageModel.unreadCount = 0;
+                         messageModel.isTop = 0;
+                         [EMDBTool InsertMessageObjectWithTableName:mseeageTabName with:messageModel success:^(NSString *successString) {
+                             NSLog(@"更新列表数据成功");
+                         } failed:^(NSString *failedString) {
+                             NSLog(@"%@",failedString);
+                         }];
+                     }
+                 }failed:^(NSString *failedString, NSString *messageID)
+                 {
+                     //             model.messageId = messageID;
+                     dataModel.messageSendState = 3;
+                     [EMDBTool upDataChatObjectSendStateWithTableName:tabName with:dataModel newId:messageID state:3 newMessageTime:@"" success:^(NSString *successString) {
+                         dataModel.messageId = messageID;
+                         //                                 [self.messageArrM replaceObjectAtIndex:self.messageArrM.count-1 withObject:model];
+                         NSLog(@"状态修改成功");
+                         EMMessageVCDataModel *messageModel = [[EMMessageVCDataModel alloc]init];
+                         messageModel.lastTime = [nowTimeStr longLongValue];
+                         messageModel.userId = model.groupID;
+                         if ([EMDBTool getMessageDBData:tabName withGroupID:model.groupID].count > 0) {
+                             [EMDBTool upDataMessageViewWithTableName:mseeageTabName with:messageModel newCount:0 newTime:messageModel.lastTime newContent:weakSelf.textView.text success:nil failed:nil];
+                             [EMDBTool upDataContactObjectWithTableName:mseeageTabName with:messageModel success:nil failed:nil];
+                         } else {
+
+                             messageModel.lastMessage = dataModel.messageContent;
+                             messageModel.lastTime = [nowTimeStr longLongValue];
+                             messageModel.unreadCount = 0;
+                             messageModel.isTop = 0;
+                             [EMDBTool InsertMessageObjectWithTableName:mseeageTabName with:messageModel success:^(NSString *successString) {
+                                 [EMDBTool InsertContactObjectWithTableName:mseeageTabName with:messageModel success:nil failed:nil];
+                                 NSLog(@"更新列表数据成功");
+                             } failed:^(NSString *failedString) {
+                                 NSLog(@"%@",failedString);
+                             }];
+                         }
+
+                     } failed:^(NSString *failedString) {
+                         
+                     }];
+                 }];
+                
+            } failed:^(NSString *failedString) {
+                NSLog(@"%@",failedString);
+            }];
+
+            
+        } else {
+            [showMessage showMessage:@"网络不给力哦~"];
+        }
+    } failed:^(NSError *errorInfo)
+     {
+         [showMessage showMessage:@"网络不给力哦~"];
+         NSLog(@"%@",errorInfo);
+     }];
+    
+}
+//发给自己
+//- (void)sendMeClick:(UIButton *)button {
+//}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    
+    [self.textView resignFirstResponder];
+    
+}
+
+#pragma mark - 原生控件代理  TextViewDelegate
+
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    
+    
+    self.placeHolderLabel.hidden = YES;
+    
+    if (textView.text.length == 1 && text.length == 0) {
+        
+        self.placeHolderLabel.hidden = NO;
+    }
+    
+    return YES;
+}
+- (void)textViewDidChange:(UITextView *)textView {
+    
+    if (self.wordCount) {
+        
+        NSInteger wordCount = textView.text.length;
+        if (wordCount > self.wordCount) {
+            wordCount = self.wordCount;
+        }
+        self.wordCountLabel.text = [NSString stringWithFormat:@"%ld/%lu",wordCount,self.wordCount];
+        
+    }
+    
+}
+
+
+
+
+
+
+
+
+@end

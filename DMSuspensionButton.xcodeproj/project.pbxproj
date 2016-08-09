@@ -1,0 +1,621 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		671EB0171D59854800F05F3F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB0161D59854800F05F3F /* main.m */; };
+		671EB01A1D59854800F05F3F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB0191D59854800F05F3F /* AppDelegate.m */; };
+		671EB01D1D59854800F05F3F /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB01C1D59854800F05F3F /* ViewController.m */; };
+		671EB0201D59854800F05F3F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 671EB01E1D59854800F05F3F /* Main.storyboard */; };
+		671EB0221D59854800F05F3F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 671EB0211D59854800F05F3F /* Assets.xcassets */; };
+		671EB0251D59854800F05F3F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 671EB0231D59854800F05F3F /* LaunchScreen.storyboard */; };
+		671EB0301D59854800F05F3F /* DMSuspensionButtonTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB02F1D59854800F05F3F /* DMSuspensionButtonTests.m */; };
+		671EB03B1D59854800F05F3F /* DMSuspensionButtonUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB03A1D59854800F05F3F /* DMSuspensionButtonUITests.m */; };
+		671EB0601D5985D900F05F3F /* YLPopViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB04D1D5985D900F05F3F /* YLPopViewController.m */; };
+		671EB0611D5985D900F05F3F /* RTCButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB0511D5985D900F05F3F /* RTCButton.m */; };
+		671EB0621D5985D900F05F3F /* UITextView+YLTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB0531D5985D900F05F3F /* UITextView+YLTextView.m */; };
+		671EB0631D5985D900F05F3F /* MeetingAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB0561D5985D900F05F3F /* MeetingAnimation.m */; };
+		671EB0641D5985D900F05F3F /* MemberIconsCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB0581D5985D900F05F3F /* MemberIconsCollectionViewCell.m */; };
+		671EB0651D5985D900F05F3F /* MemberIconsCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 671EB0591D5985D900F05F3F /* MemberIconsCollectionViewCell.xib */; };
+		671EB0661D5985D900F05F3F /* MemberPassCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB05B1D5985D900F05F3F /* MemberPassCell.m */; };
+		671EB0671D5985D900F05F3F /* MemberPassCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 671EB05C1D5985D900F05F3F /* MemberPassCell.xib */; };
+		671EB0681D5985D900F05F3F /* PhoneMeetingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB05E1D5985D900F05F3F /* PhoneMeetingView.m */; };
+		671EB0691D5985D900F05F3F /* PhoneMeetingView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 671EB05F1D5985D900F05F3F /* PhoneMeetingView.xib */; };
+		671EB06C1D59A63000F05F3F /* UIButton+NMCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 671EB06B1D59A63000F05F3F /* UIButton+NMCategory.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		671EB02C1D59854800F05F3F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 671EB00A1D59854800F05F3F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 671EB0111D59854800F05F3F;
+			remoteInfo = DMSuspensionButton;
+		};
+		671EB0371D59854800F05F3F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 671EB00A1D59854800F05F3F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 671EB0111D59854800F05F3F;
+			remoteInfo = DMSuspensionButton;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		671EB0121D59854800F05F3F /* DMSuspensionButton.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DMSuspensionButton.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		671EB0161D59854800F05F3F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		671EB0181D59854800F05F3F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		671EB0191D59854800F05F3F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		671EB01B1D59854800F05F3F /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		671EB01C1D59854800F05F3F /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		671EB01F1D59854800F05F3F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		671EB0211D59854800F05F3F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		671EB0241D59854800F05F3F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		671EB0261D59854800F05F3F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		671EB02B1D59854800F05F3F /* DMSuspensionButtonTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DMSuspensionButtonTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		671EB02F1D59854800F05F3F /* DMSuspensionButtonTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DMSuspensionButtonTests.m; sourceTree = "<group>"; };
+		671EB0311D59854800F05F3F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		671EB0361D59854800F05F3F /* DMSuspensionButtonUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DMSuspensionButtonUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		671EB03A1D59854800F05F3F /* DMSuspensionButtonUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DMSuspensionButtonUITests.m; sourceTree = "<group>"; };
+		671EB03C1D59854800F05F3F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		671EB04C1D5985D900F05F3F /* YLPopViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YLPopViewController.h; sourceTree = "<group>"; };
+		671EB04D1D5985D900F05F3F /* YLPopViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YLPopViewController.m; sourceTree = "<group>"; };
+		671EB0501D5985D900F05F3F /* RTCButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RTCButton.h; sourceTree = "<group>"; };
+		671EB0511D5985D900F05F3F /* RTCButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RTCButton.m; sourceTree = "<group>"; };
+		671EB0521D5985D900F05F3F /* UITextView+YLTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextView+YLTextView.h"; sourceTree = "<group>"; };
+		671EB0531D5985D900F05F3F /* UITextView+YLTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITextView+YLTextView.m"; sourceTree = "<group>"; };
+		671EB0551D5985D900F05F3F /* MeetingAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeetingAnimation.h; sourceTree = "<group>"; };
+		671EB0561D5985D900F05F3F /* MeetingAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MeetingAnimation.m; sourceTree = "<group>"; };
+		671EB0571D5985D900F05F3F /* MemberIconsCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemberIconsCollectionViewCell.h; sourceTree = "<group>"; };
+		671EB0581D5985D900F05F3F /* MemberIconsCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MemberIconsCollectionViewCell.m; sourceTree = "<group>"; };
+		671EB0591D5985D900F05F3F /* MemberIconsCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MemberIconsCollectionViewCell.xib; sourceTree = "<group>"; };
+		671EB05A1D5985D900F05F3F /* MemberPassCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemberPassCell.h; sourceTree = "<group>"; };
+		671EB05B1D5985D900F05F3F /* MemberPassCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MemberPassCell.m; sourceTree = "<group>"; };
+		671EB05C1D5985D900F05F3F /* MemberPassCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MemberPassCell.xib; sourceTree = "<group>"; };
+		671EB05D1D5985D900F05F3F /* PhoneMeetingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhoneMeetingView.h; sourceTree = "<group>"; };
+		671EB05E1D5985D900F05F3F /* PhoneMeetingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhoneMeetingView.m; sourceTree = "<group>"; };
+		671EB05F1D5985D900F05F3F /* PhoneMeetingView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PhoneMeetingView.xib; sourceTree = "<group>"; };
+		671EB06A1D59A63000F05F3F /* UIButton+NMCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIButton+NMCategory.h"; sourceTree = "<group>"; };
+		671EB06B1D59A63000F05F3F /* UIButton+NMCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIButton+NMCategory.m"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		671EB00F1D59854800F05F3F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		671EB0281D59854800F05F3F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		671EB0331D59854800F05F3F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		671EB0091D59854800F05F3F = {
+			isa = PBXGroup;
+			children = (
+				671EB0141D59854800F05F3F /* DMSuspensionButton */,
+				671EB02E1D59854800F05F3F /* DMSuspensionButtonTests */,
+				671EB0391D59854800F05F3F /* DMSuspensionButtonUITests */,
+				671EB0131D59854800F05F3F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		671EB0131D59854800F05F3F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				671EB0121D59854800F05F3F /* DMSuspensionButton.app */,
+				671EB02B1D59854800F05F3F /* DMSuspensionButtonTests.xctest */,
+				671EB0361D59854800F05F3F /* DMSuspensionButtonUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		671EB0141D59854800F05F3F /* DMSuspensionButton */ = {
+			isa = PBXGroup;
+			children = (
+				671EB04A1D5985D900F05F3F /* MeetingControl */,
+				671EB0181D59854800F05F3F /* AppDelegate.h */,
+				671EB0191D59854800F05F3F /* AppDelegate.m */,
+				671EB01B1D59854800F05F3F /* ViewController.h */,
+				671EB01C1D59854800F05F3F /* ViewController.m */,
+				671EB01E1D59854800F05F3F /* Main.storyboard */,
+				671EB0211D59854800F05F3F /* Assets.xcassets */,
+				671EB0231D59854800F05F3F /* LaunchScreen.storyboard */,
+				671EB0261D59854800F05F3F /* Info.plist */,
+				671EB0151D59854800F05F3F /* Supporting Files */,
+			);
+			path = DMSuspensionButton;
+			sourceTree = "<group>";
+		};
+		671EB0151D59854800F05F3F /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				671EB0161D59854800F05F3F /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		671EB02E1D59854800F05F3F /* DMSuspensionButtonTests */ = {
+			isa = PBXGroup;
+			children = (
+				671EB02F1D59854800F05F3F /* DMSuspensionButtonTests.m */,
+				671EB0311D59854800F05F3F /* Info.plist */,
+			);
+			path = DMSuspensionButtonTests;
+			sourceTree = "<group>";
+		};
+		671EB0391D59854800F05F3F /* DMSuspensionButtonUITests */ = {
+			isa = PBXGroup;
+			children = (
+				671EB03A1D59854800F05F3F /* DMSuspensionButtonUITests.m */,
+				671EB03C1D59854800F05F3F /* Info.plist */,
+			);
+			path = DMSuspensionButtonUITests;
+			sourceTree = "<group>";
+		};
+		671EB04A1D5985D900F05F3F /* MeetingControl */ = {
+			isa = PBXGroup;
+			children = (
+				671EB04B1D5985D900F05F3F /* Controller */,
+				671EB04E1D5985D900F05F3F /* Model */,
+				671EB04F1D5985D900F05F3F /* Other */,
+				671EB0541D5985D900F05F3F /* View */,
+			);
+			path = MeetingControl;
+			sourceTree = "<group>";
+		};
+		671EB04B1D5985D900F05F3F /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				671EB04C1D5985D900F05F3F /* YLPopViewController.h */,
+				671EB04D1D5985D900F05F3F /* YLPopViewController.m */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		671EB04E1D5985D900F05F3F /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		671EB04F1D5985D900F05F3F /* Other */ = {
+			isa = PBXGroup;
+			children = (
+				671EB06A1D59A63000F05F3F /* UIButton+NMCategory.h */,
+				671EB06B1D59A63000F05F3F /* UIButton+NMCategory.m */,
+				671EB0501D5985D900F05F3F /* RTCButton.h */,
+				671EB0511D5985D900F05F3F /* RTCButton.m */,
+				671EB0521D5985D900F05F3F /* UITextView+YLTextView.h */,
+				671EB0531D5985D900F05F3F /* UITextView+YLTextView.m */,
+			);
+			path = Other;
+			sourceTree = "<group>";
+		};
+		671EB0541D5985D900F05F3F /* View */ = {
+			isa = PBXGroup;
+			children = (
+				671EB0551D5985D900F05F3F /* MeetingAnimation.h */,
+				671EB0561D5985D900F05F3F /* MeetingAnimation.m */,
+				671EB0571D5985D900F05F3F /* MemberIconsCollectionViewCell.h */,
+				671EB0581D5985D900F05F3F /* MemberIconsCollectionViewCell.m */,
+				671EB0591D5985D900F05F3F /* MemberIconsCollectionViewCell.xib */,
+				671EB05A1D5985D900F05F3F /* MemberPassCell.h */,
+				671EB05B1D5985D900F05F3F /* MemberPassCell.m */,
+				671EB05C1D5985D900F05F3F /* MemberPassCell.xib */,
+				671EB05D1D5985D900F05F3F /* PhoneMeetingView.h */,
+				671EB05E1D5985D900F05F3F /* PhoneMeetingView.m */,
+				671EB05F1D5985D900F05F3F /* PhoneMeetingView.xib */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		671EB0111D59854800F05F3F /* DMSuspensionButton */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 671EB03F1D59854800F05F3F /* Build configuration list for PBXNativeTarget "DMSuspensionButton" */;
+			buildPhases = (
+				671EB00E1D59854800F05F3F /* Sources */,
+				671EB00F1D59854800F05F3F /* Frameworks */,
+				671EB0101D59854800F05F3F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DMSuspensionButton;
+			productName = DMSuspensionButton;
+			productReference = 671EB0121D59854800F05F3F /* DMSuspensionButton.app */;
+			productType = "com.apple.product-type.application";
+		};
+		671EB02A1D59854800F05F3F /* DMSuspensionButtonTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 671EB0421D59854800F05F3F /* Build configuration list for PBXNativeTarget "DMSuspensionButtonTests" */;
+			buildPhases = (
+				671EB0271D59854800F05F3F /* Sources */,
+				671EB0281D59854800F05F3F /* Frameworks */,
+				671EB0291D59854800F05F3F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				671EB02D1D59854800F05F3F /* PBXTargetDependency */,
+			);
+			name = DMSuspensionButtonTests;
+			productName = DMSuspensionButtonTests;
+			productReference = 671EB02B1D59854800F05F3F /* DMSuspensionButtonTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		671EB0351D59854800F05F3F /* DMSuspensionButtonUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 671EB0451D59854800F05F3F /* Build configuration list for PBXNativeTarget "DMSuspensionButtonUITests" */;
+			buildPhases = (
+				671EB0321D59854800F05F3F /* Sources */,
+				671EB0331D59854800F05F3F /* Frameworks */,
+				671EB0341D59854800F05F3F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				671EB0381D59854800F05F3F /* PBXTargetDependency */,
+			);
+			name = DMSuspensionButtonUITests;
+			productName = DMSuspensionButtonUITests;
+			productReference = 671EB0361D59854800F05F3F /* DMSuspensionButtonUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		671EB00A1D59854800F05F3F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = Demin;
+				TargetAttributes = {
+					671EB0111D59854800F05F3F = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+					671EB02A1D59854800F05F3F = {
+						CreatedOnToolsVersion = 7.3.1;
+						TestTargetID = 671EB0111D59854800F05F3F;
+					};
+					671EB0351D59854800F05F3F = {
+						CreatedOnToolsVersion = 7.3.1;
+						TestTargetID = 671EB0111D59854800F05F3F;
+					};
+				};
+			};
+			buildConfigurationList = 671EB00D1D59854800F05F3F /* Build configuration list for PBXProject "DMSuspensionButton" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 671EB0091D59854800F05F3F;
+			productRefGroup = 671EB0131D59854800F05F3F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				671EB0111D59854800F05F3F /* DMSuspensionButton */,
+				671EB02A1D59854800F05F3F /* DMSuspensionButtonTests */,
+				671EB0351D59854800F05F3F /* DMSuspensionButtonUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		671EB0101D59854800F05F3F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				671EB0251D59854800F05F3F /* LaunchScreen.storyboard in Resources */,
+				671EB0221D59854800F05F3F /* Assets.xcassets in Resources */,
+				671EB0671D5985D900F05F3F /* MemberPassCell.xib in Resources */,
+				671EB0691D5985D900F05F3F /* PhoneMeetingView.xib in Resources */,
+				671EB0201D59854800F05F3F /* Main.storyboard in Resources */,
+				671EB0651D5985D900F05F3F /* MemberIconsCollectionViewCell.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		671EB0291D59854800F05F3F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		671EB0341D59854800F05F3F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		671EB00E1D59854800F05F3F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				671EB0621D5985D900F05F3F /* UITextView+YLTextView.m in Sources */,
+				671EB01D1D59854800F05F3F /* ViewController.m in Sources */,
+				671EB0611D5985D900F05F3F /* RTCButton.m in Sources */,
+				671EB01A1D59854800F05F3F /* AppDelegate.m in Sources */,
+				671EB06C1D59A63000F05F3F /* UIButton+NMCategory.m in Sources */,
+				671EB0171D59854800F05F3F /* main.m in Sources */,
+				671EB0681D5985D900F05F3F /* PhoneMeetingView.m in Sources */,
+				671EB0641D5985D900F05F3F /* MemberIconsCollectionViewCell.m in Sources */,
+				671EB0631D5985D900F05F3F /* MeetingAnimation.m in Sources */,
+				671EB0661D5985D900F05F3F /* MemberPassCell.m in Sources */,
+				671EB0601D5985D900F05F3F /* YLPopViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		671EB0271D59854800F05F3F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				671EB0301D59854800F05F3F /* DMSuspensionButtonTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		671EB0321D59854800F05F3F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				671EB03B1D59854800F05F3F /* DMSuspensionButtonUITests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		671EB02D1D59854800F05F3F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 671EB0111D59854800F05F3F /* DMSuspensionButton */;
+			targetProxy = 671EB02C1D59854800F05F3F /* PBXContainerItemProxy */;
+		};
+		671EB0381D59854800F05F3F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 671EB0111D59854800F05F3F /* DMSuspensionButton */;
+			targetProxy = 671EB0371D59854800F05F3F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		671EB01E1D59854800F05F3F /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				671EB01F1D59854800F05F3F /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		671EB0231D59854800F05F3F /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				671EB0241D59854800F05F3F /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		671EB03D1D59854800F05F3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		671EB03E1D59854800F05F3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		671EB0401D59854800F05F3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = DMSuspensionButton/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = Demin.DMSuspensionButton;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		671EB0411D59854800F05F3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = DMSuspensionButton/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = Demin.DMSuspensionButton;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		671EB0431D59854800F05F3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = DMSuspensionButtonTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = Demin.DMSuspensionButtonTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DMSuspensionButton.app/DMSuspensionButton";
+			};
+			name = Debug;
+		};
+		671EB0441D59854800F05F3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = DMSuspensionButtonTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = Demin.DMSuspensionButtonTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DMSuspensionButton.app/DMSuspensionButton";
+			};
+			name = Release;
+		};
+		671EB0461D59854800F05F3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = DMSuspensionButtonUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = Demin.DMSuspensionButtonUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = DMSuspensionButton;
+			};
+			name = Debug;
+		};
+		671EB0471D59854800F05F3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = DMSuspensionButtonUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = Demin.DMSuspensionButtonUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = DMSuspensionButton;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		671EB00D1D59854800F05F3F /* Build configuration list for PBXProject "DMSuspensionButton" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				671EB03D1D59854800F05F3F /* Debug */,
+				671EB03E1D59854800F05F3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		671EB03F1D59854800F05F3F /* Build configuration list for PBXNativeTarget "DMSuspensionButton" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				671EB0401D59854800F05F3F /* Debug */,
+				671EB0411D59854800F05F3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		671EB0421D59854800F05F3F /* Build configuration list for PBXNativeTarget "DMSuspensionButtonTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				671EB0431D59854800F05F3F /* Debug */,
+				671EB0441D59854800F05F3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		671EB0451D59854800F05F3F /* Build configuration list for PBXNativeTarget "DMSuspensionButtonUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				671EB0461D59854800F05F3F /* Debug */,
+				671EB0471D59854800F05F3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 671EB00A1D59854800F05F3F /* Project object */;
+}

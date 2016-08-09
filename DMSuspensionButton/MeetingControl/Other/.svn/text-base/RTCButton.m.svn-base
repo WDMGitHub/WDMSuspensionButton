@@ -1,0 +1,200 @@
+//
+//  RTCButton.m
+//  RTCDemo
+//
+//  Created by Harvey on 16/5/24.
+//  Copyright © 2016年 Haley. All rights reserved.
+//
+
+#import "RTCButton.h"
+#import <objc/runtime.h>
+#define PADDING     5
+static void *DragEnableKey = &DragEnableKey;
+static void *AdsorbEnableKey = &AdsorbEnableKey;
+
+
+@interface RTCButton ()
+
+@end
+
+@implementation RTCButton
+
+-(void)setDragEnable:(BOOL)dragEnable
+{
+    objc_setAssociatedObject(self, DragEnableKey,@(dragEnable), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+-(BOOL)isDragEnable
+{
+    return [objc_getAssociatedObject(self, DragEnableKey) boolValue];
+}
+
+-(void)setAdsorbEnable:(BOOL)adsorbEnable
+{
+    objc_setAssociatedObject(self, AdsorbEnableKey,@(adsorbEnable), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+-(BOOL)isAdsorbEnable
+{
+    return [objc_getAssociatedObject(self, AdsorbEnableKey) boolValue];
+}
+
+CGPoint beginPoint;
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    self.highlighted = YES;
+    if (![objc_getAssociatedObject(self, DragEnableKey) boolValue]) {
+        return;
+    }
+    
+    UITouch *touch = [touches anyObject];
+    
+    beginPoint = [touch locationInView:self];
+}
+
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    self.highlighted = NO;
+    if (![objc_getAssociatedObject(self, DragEnableKey) boolValue]) {
+        return;
+    }
+    
+    UITouch *touch = [touches anyObject];
+    
+    CGPoint nowPoint = [touch locationInView:self];
+    
+    float offsetX = nowPoint.x - beginPoint.x;
+    float offsetY = nowPoint.y - beginPoint.y;
+    
+    self.center = CGPointMake(self.center.x + offsetX, self.center.y + offsetY);
+}
+
+-(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if (self.highlighted) {
+        [self sendActionsForControlEvents:UIControlEventTouchUpInside];
+        self.highlighted = NO;
+    }
+    
+    if (self.superview && [objc_getAssociatedObject(self,AdsorbEnableKey) boolValue] ) {
+        float marginLeft = self.frame.origin.x;
+        float marginRight = self.superview.frame.size.width - self.frame.origin.x - self.frame.size.width;
+        float marginTop = self.frame.origin.y;
+        float marginBottom = self.superview.frame.size.height - self.frame.origin.y - self.frame.size.height;
+        [UIView animateWithDuration:0.125 animations:^(void){
+            if (marginTop<60) {
+                self.frame = CGRectMake(marginLeft<marginRight?marginLeft<PADDING?PADDING:self.frame.origin.x:marginRight<PADDING?self.superview.frame.size.width -self.frame.size.width-PADDING:self.frame.origin.x,
+                                        PADDING,
+                                        self.frame.size.width,
+                                        self.frame.size.height);
+            }
+            else if (marginBottom<60) {
+                self.frame = CGRectMake(marginLeft<marginRight?marginLeft<PADDING?PADDING:self.frame.origin.x:marginRight<PADDING?self.superview.frame.size.width -self.frame.size.width-PADDING:self.frame.origin.x,
+                                        self.superview.frame.size.height - self.frame.size.height-PADDING,
+                                        self.frame.size.width,
+                                        self.frame.size.height);
+                
+            }
+            else {
+                self.frame = CGRectMake(marginLeft<marginRight?PADDING:self.superview.frame.size.width - self.frame.size.width-PADDING,
+                                        self.frame.origin.y,
+                                        self.frame.size.width,
+                                        self.frame.size.height);
+            }
+        }];
+    }
+}
+
+
+- (instancetype)initWithTitle:(NSString *)title imageName:(NSString *)imageName isVideo:(BOOL)isVideo
+{
+    self = [super init];
+    if (self) {
+        
+        if (title) {
+            [self setTitle:title forState:UIControlStateNormal];
+            self.titleLabel.font = [UIFont systemFontOfSize:13.0f];
+            [self setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+            [self setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
+            if (isVideo) {
+                [self setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+                [self setTitleColor:[UIColor grayColor] forState:UIControlStateDisabled];
+            }
+            
+            UIColor *blueColor = [UIColor colorWithRed:57/255.0 green:163/255.0 blue:248/255.0 alpha:1.0];
+            [self setTitleColor:blueColor forState:UIControlStateSelected];
+        }
+        
+        if (imageName) {
+            NSString *normalName = [NSString stringWithFormat:@"%@_black",imageName];
+            NSString *disableName = [NSString stringWithFormat:@"%@_gray",imageName];
+            NSString *selectedName = [NSString stringWithFormat:@"%@_blue",imageName];
+            
+            if (isVideo) {
+                normalName = [NSString stringWithFormat:@"%@_white",imageName];
+                disableName = [NSString stringWithFormat:@"%@_black",imageName];
+            }
+            
+            [self setImage:[UIImage imageNamed:normalName] forState:UIControlStateNormal];
+            [self setImage:[UIImage imageNamed:disableName] forState:UIControlStateDisabled];
+            [self setImage:[UIImage imageNamed:selectedName] forState:UIControlStateSelected];
+        }
+    }
+    
+    return self;
+}
+
++ (instancetype)rtcButtonWithTitle:(NSString *)title imageName:(NSString *)imageName isVideo:(BOOL)isVideo;
+{
+    return [[[self class] alloc] initWithTitle:title imageName:imageName isVideo:isVideo];
+}
+
+- (instancetype)initWithTitle:(NSString *)title noHandleImageName:(NSString *)noHandleImageName
+{
+    self = [super init];
+    if (self) {
+        if (title) {
+            [self setTitle:title forState:UIControlStateNormal];
+            self.titleLabel.font = [UIFont systemFontOfSize:13.0f];
+            [self setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+            [self setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
+            UIColor *blueColor = [UIColor colorWithRed:57/255.0 green:163/255.0 blue:248/255.0 alpha:1.0];
+            [self setTitleColor:blueColor forState:UIControlStateSelected];
+        }
+        if (noHandleImageName) {
+            [self setImage:[UIImage imageNamed:noHandleImageName] forState:UIControlStateNormal];
+        }
+    }
+    return self;
+}
+
++ (instancetype)rtcButtonWithTitle:(NSString *)title noHandleImageName:(NSString *)noHandleImageName
+{
+    return [[[self class] alloc] initWithTitle:title noHandleImageName:noHandleImageName];
+}
+
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    if (self.currentImage && self.currentImage) {
+        // Center image
+        CGPoint center = self.imageView.center;
+        center.x = self.frame.size.width/2;
+        center.y = self.imageView.frame.size.height/2 + 5;
+        self.imageView.center = center;
+        
+        //Center text
+        CGRect newFrame = [self titleLabel].frame;
+        newFrame.origin.x = 0;
+        newFrame.origin.y = self.imageView.frame.size.height + 5;
+        newFrame.size.width = self.frame.size.width;
+        
+        self.titleLabel.frame = newFrame;
+        self.titleLabel.textAlignment = NSTextAlignmentCenter;
+    }
+}
+
+@end

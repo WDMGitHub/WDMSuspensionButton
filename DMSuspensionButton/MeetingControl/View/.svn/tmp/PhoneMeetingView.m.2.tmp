@@ -1,0 +1,708 @@
+//
+//  PhoneMeetingView.m
+//  botong
+//
+//  Created by demin on 16/7/12.
+//  Copyright © 2016年 Demin. All rights reserved.
+//
+
+#import "PhoneMeetingView.h"
+#import "MemberIconsCollectionViewCell.h"
+#import "MemberPassCell.h"  
+#import "YLPopViewController.h"
+#import "MeetingAnimation.h"
+#import <SDWebImage/UIButton+WebCache.h>
+#import <SDWebImage/UIImageView+WebCache.h>
+#import "UIImage+Category.h"
+#import "ContactsViewController.h"
+#import "MeetingCreateNewMeetingViewController.h"
+#import "BoTongAPI.h"
+#import "BTCommonTool.h"
+#import <RMUniversalAlert/RMUniversalAlert.h>
+#import "MeetingDetailModel.h"
+
+@interface PhoneMeetingView ()<UITableViewDelegate,UITableViewDataSource,UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UIActionSheetDelegate>
+
+@property (nonatomic, strong) NSMutableArray<NSDictionary *> *stateDataArrM;
+@property (nonatomic, strong) NSMutableDictionary *muteStateDicM;
+@property (nonatomic, strong) DetailPersonModel *selectedDetailpersonModel;
+@end
+
+
+@implementation PhoneMeetingView
+
+- (void)awakeFromNib {
+    self.muteStateDicM = [NSMutableDictionary dictionary];
+    //接受选择回调 使用与Dang相同通知
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(selectedReceivers:) name:kNOTIFICATION_CREATEDANG object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(cancelSelectReceivers:) name:kNOTIFICATION_CANCELSELECTPERSON object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveBusinessCallState:) name:kNOTIFICATION_BUSINESSCALL_MEETINGSTATE object:nil];
+    self.stateDataArrM = [NSMutableArray array];
+    [self addSubViews];
+}
+
+- (void)receiveBusinessCallState:(NSNotification *)noti {
+    NSDictionary *dict = noti.object;
+    //type 1.开始会议 2.加入会议 3.拒绝加入 4.未响应
+    //如果有time 无type则为 会议结束
+    //time 为会议进行的时间，单位 s ，需转化
+    /*
+     dataType = 60;
+     id = caf99a7cffa6414195a6030a346985fc;
+     nick = "\U738b\U5f97\U6c11";
+     number = 18510888012;
+     times = 101;
+     type = 3;
+     */
+    
+    if (![dict[@"id"] isEqualToString:self.meetingDict[@"meeting_id"]]) {
+        return;
+    }
+    
+    if (![dict.allKeys containsObject:@"type"]) {
+        
+        NSInteger time = [dict[@"times"] integerValue];
+        NSString *timeStr = [NSString stringWithFormat:@"%2ld:%2ld", time / 60, time % 60];
+        
+        NSDictionary *stateDict = @{@"msg" : dict[@"msg"], @"time" : timeStr};
+        [self.stateDataArrM addObject:stateDict];
+        [_memberPassDetailsTableView reloadData];
+
+    } else {
+        NSInteger time = [dict[@"times"] integerValue];
+        NSString *timeStr = [NSString stringWithFormat:@"%2ld:%2ld", time / 60, time % 60];
+        NSDictionary *stateDict = @{@"msg" : dict[@"msg"], @"time" : timeStr};
+        [self.stateDataArrM addObject:stateDict];
+        [_memberPassDetailsTableView reloadData];
+        if ([dict[@"type"] isEqual:@2]) {
+            for (DetailPersonModel *model in self.MeetDataArray) {
+                if ([model.mobile isEqualToString:dict[@"number"]]) {
+                    model.state = 1;
+                    model.talkState = 1;
+                    break;
+                }
+            }
+            [_memberIconsCollectionView reloadData];
+        } else if ([dict[@"type"] isEqual:@3]) {
+            for (DetailPersonModel *model in self.MeetDataArray) {
+                if ([model.mobile isEqualToString:dict[@"number"]]) {
+                    model.state = 1;
+                    model.talkState = 2;
+                    break;
+                }
+            }
+            [_memberIconsCollectionView reloadData];
+            kWEAK_SELF;
+
+            if ([dict[@"number"] isEqualToString:[BTCommonTool getPhoneNumber]] || [dict[@"number"] isEqualToString:self.meetingDict[@"admin"]]) {
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [weakSelf.timer invalidate];
+                    weakSelf.timer = nil;
+                    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+                    [user removeObjectForKey:@"meetingView"];
+                    [weakSelf.MeetAnimation meetingViewDismissAniation];
+                    
+                    //移除保存的会议纪要草稿
+                    [user removeObjectForKey:@"MinutesDraft"];
+                });
+            }
+        } else if ([dict[@"type"] isEqual:@4]) {
+            for (DetailPersonModel *model in self.MeetDataArray) {
+                if ([model.mobile isEqualToString:dict[@"number"]]) {
+                    model.state = 2;
+                    model.talkState = 0;
+                    break;
+                }
+            }
+            [_memberIconsCollectionView reloadData];
+        }
+    }
+    
+}
+
+- (void)cancelSelectReceivers:(NSNotification *)noti {
+    self.alpha = 1;
+    [self createTimer];
+}
+
+
+- (void)selectedReceivers:(NSNotification *)noti {
+    self.alpha = 1;
+    if ([noti.object isKindOfClass:[NSArray class]] && [noti.object count] == 0) {
+        [self createTimer];
+        return;
+    }
+    SimplePersonInfoModel *userInfo = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSUserDefaults standardUserDefaults] objectForKey:@"userInfo"]];
+    
+    NSMutableArray *receivers = [NSMutableArray array];
+    for (GroupPeopleData *model in noti.object) {
+        if ([model.mobile isEqualToString:userInfo.userData.mobile]) {
+            [noti.object removeObject:model];
+            break;
+        }
+    }
+    [receivers addObjectsFromArray:noti.object];
+    
+    NSMutableArray *array = [NSMutableArray arrayWithCapacity:10];
+    NSMutableArray *existArrM = [NSMutableArray array];
+    for (GroupPeopleData *model in noti.object) {
+        
+        for (GroupPeopleData *dataModel in self.MeetDataArray) {
+            if ([dataModel.mobile isEqualToString:model.mobile]) {
+                [existArrM addObject:model.mobile];
+            }
+        }
+        NSString *string = model.mobile;
+        [array addObject:string];
+    }
+    [array removeObjectsInArray:existArrM];
+    self.tosString = (NSMutableString *)[array componentsJoinedByString:@"#"];
+    [BoTongAPI meetingAddNewPersonWithMobile:self.meetingDict[@"admin"] meetingID:self.meetingDict[@"meeting_id"] tos:self.tosString success:^(NSDictionary *responseDict) {
+        
+    } failed:^(NSError *errorInfo) {
+        
+    }];
+    
+    /**
+     *  电话会议 加入会议
+     *
+     *  @param mobile        操作者手机号
+     *  @param meetingID     会议ID
+     *  @param tos           参会成员手机号码集合，用英文#分开，加入手机号数量与现有参会成员数量不得超过16个
+     *  @param responseData  成功返回
+     *  @param errorInfoData 失败返回
+     */
+//    + (void)meetingAddNewPersonWithMobile:(NSString *)mobile meetingID:(NSString *)meetingID tos:(NSString *)tos success:(void (^)(NSDictionary *responseDict))responseData failed:(void (^)(NSError *errorInfo))errorInfoData;
+    
+
+
+    self.MeetDataArray = [NSMutableArray arrayWithArray:receivers];
+    [self.memberIconsCollectionView reloadData];
+}
+
+- (void)addSubViews {
+    self.muteButton.selected = NO;
+    self.overButton.layer.cornerRadius = self.overButton.frame.size.height/2;
+    self.iconButton.layer.cornerRadius = self.iconButton.frame.size.height/2;
+    self.iconButton.layer.masksToBounds = YES;
+    
+    self.memberPassDetailsTableView.delegate = self;
+    self.memberPassDetailsTableView.dataSource = self;
+    [self.memberPassDetailsTableView registerNib:[UINib nibWithNibName:@"MemberPassCell" bundle:[NSBundle mainBundle]] forCellReuseIdentifier:@"passCell"];
+    
+    self.memberIconsCollectionView.delegate = self;
+    self.memberIconsCollectionView.dataSource = self;
+    [self.memberIconsCollectionView registerNib:[UINib nibWithNibName:@"MemberIconsCollectionViewCell" bundle:[NSBundle mainBundle]] forCellWithReuseIdentifier:@"MemberCollectionCell"];
+    
+    
+    
+}
+
+//计时器
+- (void)createTimer {
+    if (!self.timer) {
+        NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"HH:mm"];
+        self.mettingTimeSlot.text = self.meetingTime;
+        
+        //获取现在的时间距离1970的时间间隔
+        NSDate *nowDate = [NSDate dateWithTimeIntervalSinceNow:0];
+        NSTimeInterval now = [nowDate timeIntervalSince1970]*1;
+        
+        NSTimeInterval cha = now-self.meetingStartTime;
+        
+        self.currentTime = cha;
+        
+        self.timer = [NSTimer timerWithTimeInterval:1 target:self selector:@selector(startCaculateTime) userInfo:nil repeats:YES];
+        [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+        
+        //    self.timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(startCaculateTime) userInfo:nil repeats:YES];
+    }
+  
+}
+
+//开始计算时间
+- (void)startCaculateTime {
+    self.currentTime += 1;
+    int ss; //秒
+    int mm; //分
+    int hh; //时
+    ss = (int)self.currentTime-(((int)self.currentTime)/60)*60;
+    mm = ((int)self.currentTime)/60-(((int)self.currentTime)/3600)*60;
+    hh =((int)self.currentTime)/3600;
+    
+    NSString *str = @"";
+    if (hh>=1) {
+        str = [NSString stringWithFormat:@"%.2d:%.2d:%.2d",hh,mm,ss];
+    }else {
+        str = [NSString stringWithFormat:@"%.2d:%.2d",mm,ss];
+    }
+    //会议计时
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM--dd HH:mm:ss"];
+    NSDate *nowDate2 = [NSDate dateWithTimeIntervalSinceNow:0];
+    NSTimeInterval now2 = [nowDate2 timeIntervalSince1970]*1;
+
+    NSTimeInterval cha2 = now2 - self.meetingEndTime;
+    if (cha2>0) {
+        self.mettingTimer.text = @"会议结束";
+    }else {
+        self.mettingTimer.text = str;
+    }
+    
+}
+
+#pragma mark - tableView delegate
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.stateDataArrM.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSDictionary *dict = self.stateDataArrM[indexPath.row];
+    MemberPassCell *cell = [tableView dequeueReusableCellWithIdentifier:@"passCell"];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+//    if (indexPath.row == 0) {
+//        cell.passDetailLabel.text = [NSString stringWithFormat:@"%@加入了会议",self.meetingDict[@"nick"]];
+//    }else {
+        cell.passDetailLabel.text = dict[@"msg"];
+        cell.passTimeLabel.text = dict[@"time"];
+//    }
+    return cell;
+}
+
+#pragma mark - collectionView delegate
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath{
+    return CGSizeMake(71, 69);
+}
+
+- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
+    return UIEdgeInsetsMake(10, 10, 10, 10);
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    [self createTimer];
+    return self.MeetDataArray.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    
+   
+    
+    MemberIconsCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"MemberCollectionCell" forIndexPath:indexPath];
+    cell.iconImageView.layer.cornerRadius = 22.0f;
+    cell.iconImageView.layer.masksToBounds = YES;
+    //获取上个界面传过来的数据
+    DetailPersonModel * model = self.MeetDataArray[indexPath.row];
+    cell.iconTitleLabel.text = model.nick;
+    NSString *moble = model.mobile;
+    NSString *name = model.nick;
+    //未响应的头像
+<<<<<<< .mine
+    if (model.state == 0) {
+        UIImage *placehoderImage =   [[UIImage imageFormColor:[BTCommonTool getUserIconColor:moble] frame:CGRectMake(0, 0, 45, 45)] imageWithTitle:@"等待" fontSize:15.0];
+        cell.iconImageView.image = placehoderImage;
+=======
+    if (model.talkState == 0) {
+        if (model.state == 2) {
+            UIImage *placehoderImage =   [[UIImage imageFormColor:[BTCommonTool getUserIconColor:moble] frame:CGRectMake(0, 0, 45, 45)] imageWithTitle:@"已拒绝" fontSize:15.0];
+            cell.iconImageView.image = placehoderImage;
+        } else {
+            UIImage *placehoderImage =   [[UIImage imageFormColor:[BTCommonTool getUserIconColor:moble] frame:CGRectMake(0, 0, 45, 45)] imageWithTitle:@"等待中" fontSize:15.0];
+            cell.iconImageView.image = placehoderImage;
+        }
+>>>>>>> .r5674
+    //已接受的头像
+<<<<<<< .mine
+    }else if (model.state == 1) {
+        UIImage *placehoderImage =   [[UIImage imageFormColor:[BTCommonTool getUserIconColor:moble] frame:CGRectMake(0, 0, 45, 45)] imageWithTitle:(name.length > 2 ? [name substringWithRange:NSMakeRange(name.length -2, 2)] : name) fontSize:15.0];
+=======
+    }else if (model.talkState == 1) {
+        UIImage *placehoderImage =   [[UIImage imageFormColor:[BTCommonTool getUserIconColor:moble] frame:CGRectMake(0, 0, 45, 45)] imageWithTitle:(name.length > 2 ? [name substringWithRange:NSMakeRange(name.length -2, 2)] : name) fontSize:15.0];
+>>>>>>> .r5674
+        [cell.iconImageView sd_setImageWithURL:[NSURL URLWithString:model.avatar] placeholderImage:[UIImage imageNamed:@"image_placehoder"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+            if (error) {
+                cell.iconImageView.image = placehoderImage;
+            }
+        }];
+<<<<<<< .mine
+    //已拒绝的头像
+    }else if (model.state == 2) {
+        UIImage *placehoderImage =   [[UIImage imageFormColor:[BTCommonTool getUserIconColor:moble] frame:CGRectMake(0, 0, 45, 45)] imageWithTitle:@"拒绝" fontSize:15.0];
+=======
+    //已挂断的头像
+    }else if (model.talkState == 2) {
+        UIImage *placehoderImage =   [[UIImage imageFormColor:[BTCommonTool getUserIconColor:moble] frame:CGRectMake(0, 0, 45, 45)] imageWithTitle:@"已关断" fontSize:15.0];
+>>>>>>> .r5674
+        cell.iconImageView.image = placehoderImage;
+    }
+    return cell;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+     DetailPersonModel *model = self.MeetDataArray[indexPath.row];
+    self.selectedDetailpersonModel = model;
+    if ([[BTCommonTool getPhoneNumber] isEqualToString:self.meetingDict[@"admin"]]) {
+        if (model.talkState == 1) {
+            
+            if (!model.mute || [model.mute isEqual:@0]) {
+                UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:model.nick delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"静音",@"踢出", nil];
+                actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
+                [actionSheet showInView:self];
+                self.alertState = 1;
+                self.alertMobile = model.mobile;
+                self.muteStateDicM[[NSString stringWithFormat:@"%@", @(1)]] = @0;
+            } else {
+                UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:model.nick delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"取消静音",@"踢出", nil];
+                actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
+                [actionSheet showInView:self];
+                self.alertState = 1;
+                self.alertMobile = model.mobile;
+                self.muteStateDicM[[NSString stringWithFormat:@"%@", @(1)]] = @1;
+            }
+           
+        } else {
+            UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:model.nick delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"踢出", nil];
+            actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
+            [actionSheet showInView:self];
+            self.alertState = 1;
+            self.alertMobile = model.mobile;
+        }
+        
+        
+    } else {
+        if (![[BTCommonTool getPhoneNumber] isEqualToString:model.mobile]) {
+            return;
+        }
+        if (model.talkState == 1) {
+            if (!model.mute || [model.mute isEqual:@0]) {
+                UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:model.nick delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"静音", nil];
+                actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
+                [actionSheet showInView:self];
+                self.alertState = 2;
+                self.alertMobile = model.mobile;
+                self.muteStateDicM[[NSString stringWithFormat:@"%@", @(2)]] = @0;
+            } else {
+                UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:model.nick delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"取消静音", nil];
+                actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
+                [actionSheet showInView:self];
+                self.alertState = 2;
+                self.alertMobile = model.mobile;
+                self.muteStateDicM[[NSString stringWithFormat:@"%@", @(2)]] = @1;
+            }
+            
+        }
+        
+    }
+}
+
+#pragma mark - AcitonSheet Delegate
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    SimplePersonInfoModel *userInfo = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSUserDefaults standardUserDefaults] objectForKey:@"userInfo"]];
+    if (self.alertState == 0) {
+        NSNumber *state = self.muteStateDicM[[NSString stringWithFormat:@"%@", @(self.alertState)]];
+        if (buttonIndex == 0) {
+            if ([state isEqual:@0]) {
+                [BoTongAPI meetingMuteWithMobile:userInfo.userData.mobile meetingID:self.meetingDict[@"meeting_id"] success:^(NSDictionary *responseDict) {
+                    self.mute = @1;
+                    NSLog(@"%@", responseDict);
+                } failed:^(NSError *errorInfo) {
+                    NSLog(@"%@", errorInfo.localizedDescription);
+                }];
+            } else {
+                [BoTongAPI meetingUnMuteWithMobile:userInfo.userData.mobile meetingID:self.meetingDict[@"meeting_id"] success:^(NSDictionary *responseDict) {
+                    self.mute = @0;
+                    NSLog(@"%@", responseDict);
+                } failed:^(NSError *errorInfo) {
+                    NSLog(@"%@", errorInfo.localizedDescription);
+                }];
+            }
+            
+            
+        }else {
+            NSLog(@"取消");
+        }
+    } else if (self.alertState == 1) {
+        NSNumber *state = self.muteStateDicM[[NSString stringWithFormat:@"%@", @(self.alertState)]];
+        
+        if (actionSheet.numberOfButtons == 3) {
+            if (buttonIndex == 0) {
+                if ([state isEqual:@0]) {
+                    [BoTongAPI meetingMuteWithMobile:self.alertMobile meetingID:self.meetingDict[@"meeting_id"] success:^(NSDictionary *responseDict) {
+                        self.selectedDetailpersonModel.mute = @1;
+                    } failed:^(NSError *errorInfo) {
+                        
+                    }];
+
+                } else {
+                    [BoTongAPI meetingUnMuteWithMobile:self.alertMobile meetingID:self.meetingDict[@"meeting_id"] success:^(NSDictionary *responseDict) {
+                        self.selectedDetailpersonModel.mute = @0;
+                    } failed:^(NSError *errorInfo) {
+                        
+                    }];
+
+                }
+                
+            }else if (buttonIndex == 1) {
+                NSLog(@"踢出");
+            }else {
+                NSLog(@"取消");
+            }
+        } else {
+            if (buttonIndex == 0) {
+                NSLog(@"踢出%s", __func__);
+            }
+        }
+    } else {
+        NSNumber *state = self.muteStateDicM[[NSString stringWithFormat:@"%@", @(self.alertState)]];
+
+        if (buttonIndex == 0) {
+            if ([state isEqual:@0]) {
+                [BoTongAPI meetingMuteWithMobile:self.alertMobile meetingID:self.meetingDict[@"meeting_id"] success:^(NSDictionary *responseDict) {
+                    self.selectedDetailpersonModel.mute = @1;
+                } failed:^(NSError *errorInfo) {
+                    
+                }];
+            } else {
+                [BoTongAPI meetingUnMuteWithMobile:self.alertMobile meetingID:self.meetingDict[@"meeting_id"] success:^(NSDictionary *responseDict) {
+                    self.selectedDetailpersonModel.mute = @0;
+                } failed:^(NSError *errorInfo) {
+                    
+                }];
+            }
+        }else {
+            NSLog(@"取消");
+        }
+    }
+}
+
+- (IBAction)clickIconButton:(id)sender {
+    if ([[BTCommonTool getPhoneNumber] isEqualToString:self.meetingDict[@"admin"]]) {
+        if (!self.mute || [self.mute isEqual:@0]) {
+            SimplePersonInfoModel *userInfo = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSUserDefaults standardUserDefaults] objectForKey:@"userInfo"]];
+            UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:userInfo.userData.nick delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"静音", nil];
+            actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
+            [actionSheet showInView:self];
+            self.alertState = 0;
+            self.muteStateDicM[[NSString stringWithFormat:@"%@", @(0)]] = @0;
+
+        } else {
+            SimplePersonInfoModel *userInfo = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSUserDefaults standardUserDefaults] objectForKey:@"userInfo"]];
+            UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:userInfo.userData.nick delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"取消静音", nil];
+            actionSheet.actionSheetStyle = UIActionSheetStyleDefault;
+            [actionSheet showInView:self];
+            self.alertState = 0;
+            self.muteStateDicM[[NSString stringWithFormat:@"%@", @(1)]] = @1;
+        }
+        
+    }
+}
+
+//最小化界面
+- (IBAction)clickMinButton:(id)sender {
+    
+    [self.MeetAnimation minimizingViewAniamtion];
+    self.MinButton.enabled = NO;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        //最小化界面的通知
+        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+        [center postNotificationName:@"ClickMinButton" object:nil];
+    });
+}
+
+//添加成员
+- (IBAction)addMembers:(id)sender {
+    
+    [self.timer invalidate];
+    self.timer = nil;
+    NSMutableArray *selectedArrM = [NSMutableArray array];
+    for (GroupPeopleData *model in self.MeetDataArray) {
+        SimplePersonInfoModel *simpleModel = [[SimplePersonInfoModel alloc] init];
+        simpleModel.userData = [[UserData alloc] init];
+        simpleModel.userData.mobile = model.mobile;
+        simpleModel.userData.nick = model.nick;
+        simpleModel.userData.avatar = model.avatar;
+        [selectedArrM addObject:simpleModel];
+        
+    }
+    
+    SimplePersonInfoModel *userInfo = [NSKeyedUnarchiver unarchiveObjectWithData:[[NSUserDefaults standardUserDefaults] objectForKey:@"userInfo"]];
+    UITabBarController *tabVC = (UITabBarController *)[[[[UIApplication sharedApplication] delegate] window] rootViewController];
+    ContactsViewController *contactVC = [[ContactsViewController alloc] init];
+    contactVC.tagForVC = 99;
+    contactVC.isFromDang = YES;
+    [selectedArrM addObject:userInfo];
+    contactVC.dataArr = selectedArrM;
+    contactVC.surplusNum = 16 - self.MeetDataArray.count;
+    contactVC.checkTotalNum = 16;
+    
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:contactVC];
+    nav.navigationBar.tintColor = [UIColor whiteColor];
+    nav.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName: [UIColor whiteColor]};
+    nav.navigationBar.barTintColor = BASE_COLOR;
+    kWEAK_SELF;
+    [tabVC presentViewController:nav animated:YES completion:^{
+        
+        [UIView animateWithDuration:0.5 animations:^{
+            weakSelf.alpha = 0;
+
+        }];
+    }];
+    
+}
+
+
+//会议纪要
+- (IBAction)clickMinutesButton:(id)sender {
+
+    _minutesButton.selected = YES;
+    YLPopViewController *popView = [[YLPopViewController alloc] init];
+    popView.contentViewSize = CGSizeMake([UIScreen mainScreen].bounds.size.width-40, 210);
+    popView.Title = @"会议纪要";
+    
+    NSString *str = [[NSUserDefaults standardUserDefaults] objectForKey:@"MinutesDraft"];
+    if (str) {
+        popView.draftText = str;
+        popView.placeHolder = nil;
+    }else {
+        popView.placeHolder = @"请在此输入内容...";
+
+    }
+    popView.peopleArrM = self.MeetDataArray;
+    popView.wordCount = 150;//不设置则没有
+    [popView addContentView];//最后调用
+    popView.confirmBlock = ^(NSString *text) {
+        
+    };
+    kWEAK_SELF;
+    popView.deselectBlock = ^() {
+        weakSelf.minutesButton.selected = NO;
+    };
+}
+
+//会议结束
+-(IBAction)quitMeetingClick:(id)sender
+{
+    [self.timer invalidate];
+    self.timer = nil;
+    NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+    [user removeObjectForKey:@"meetingView"];
+    [self.MeetAnimation meetingViewDismissAniation];
+    
+    //移除保存的会议纪要草稿
+    [user removeObjectForKey:@"MinutesDraft"];
+    
+     /**
+     *  电话会议 结束会议
+     *
+     *  @param mobile        操作者手机号
+     *  @param meetingID     会议ID
+     *  @param responseData  成功返回
+     *  @param errorInfoData 失败返回
+     */
+//    + (void)meetingCloseWithMobile:(NSString *)mobile meetingID:(NSString *)meetingID success:(void (^)(NSDictionary *responseDict))responseData failed:(void (^)(NSError *errorInfo))errorInfoData;
+    
+    /**
+     *  电话会议 退出会议
+     *
+     *  @param mobile        操作者手机号
+     *  @param meetingID     会议ID
+     *  @param responseData  成功返回
+     *  @param errorInfoData 失败返回
+     */
+//    + (void)meetingQuitWithMobile:(NSString *)mobile meetingID:(NSString *)meetingID success:(void (^)(NSDictionary *responseDict))responseData failed:(void (^)(NSError *errorInfo))errorInfoData;
+//
+
+    if ([[BTCommonTool getPhoneNumber] isEqualToString:self.meetingDict[@"admin"]]) {
+        
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"meetingData"];
+        
+        [BoTongAPI meetingCloseWithMobile:[BTCommonTool getPhoneNumber] meetingID:self.meetingDict[@"meeting_id"] success:^(NSDictionary *responseDict) {
+            
+        } failed:^(NSError *errorInfo) {
+            
+        }];
+    }else {
+        [BoTongAPI meetingQuitWithMobile:[BTCommonTool getPhoneNumber] meetingID:self.meetingDict[@"meeting_id"] success:^(NSDictionary *responseDict) {
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"meetingData"];
+
+        } failed:^(NSError *errorInfo) {
+            
+        }];
+        
+    }
+}
+
+//静音
+- (IBAction)clickMuteButton:(id)sender {
+    self.muteButton.selected = !self.muteButton.selected;
+    
+    
+    
+      /**
+     *  电话会议 会议静音
+     *
+     *  @param mobile        操作者手机号
+     *  @param meetingID     会议ID
+     *  @param responseData  成功返回
+     *  @param errorInfoData 失败返回
+     */
+//    + (void)meetingMuteAllWithMobile:(NSString *)mobile meetingID:(NSString *)meetingID success:(void (^)(NSDictionary *responseDict))responseData failed:(void (^)(NSError *errorInfo))errorInfoData;
+    
+    /**
+     *  电话会议 取消会议静音
+     *
+     *  @param mobile        操作者手机号
+     *  @param meetingID     会议ID
+     *  @param responseData  成功返回
+     *  @param errorInfoData 失败返回
+     */
+//    + (void)meetingUnMuteAllWithMobile:(NSString *)mobile meetingID:(NSString *)meetingID success:(void (^)(NSDictionary *responseDict))responseData failed:(void (^)(NSError *errorInfo))errorInfoData;
+
+    if (self.muteButton.selected) {
+      
+        if ([[BTCommonTool getPhoneNumber] isEqualToString:self.meetingDict[@"admin"]]) {
+            self.muteLabel.text = @"取消静音";
+            [BoTongAPI meetingMuteAllWithMobile:[BTCommonTool getPhoneNumber] meetingID:self.meetingDict[@"meeting_id"] success:^(NSDictionary *responseDict) {
+                
+            } failed:^(NSError *errorInfo) {
+                
+            }];
+        }else {
+            self.muteLabel.text = @"取消静音";
+            [BoTongAPI meetingMuteWithMobile:[BTCommonTool getPhoneNumber] meetingID:self.meetingDict[@"meeting_id"] success:^(NSDictionary *responseDict) {
+               
+            } failed:^(NSError *errorInfo) {
+                
+            }];
+        }
+    }else {
+        
+        if ([[BTCommonTool getPhoneNumber] isEqualToString:self.meetingDict[@"admin"]]) {
+            self.muteLabel.text = @"全员静音";
+            [BoTongAPI meetingUnMuteAllWithMobile:[BTCommonTool getPhoneNumber] meetingID:self.meetingDict[@"meeting_id"] success:^(NSDictionary *responseDict) {
+                
+            } failed:^(NSError *errorInfo) {
+                
+            }];
+        }else {
+            self.muteLabel.text = @"静音";
+            [BoTongAPI meetingUnMuteWithMobile:[BTCommonTool getPhoneNumber] meetingID:self.meetingDict[@"meeting_id"] success:^(NSDictionary *responseDict) {
+               
+            } failed:^(NSError *errorInfo) {
+                
+            }];
+        
+        }
+    }
+}
+
+- (void)popMeetingView {
+    self.MeetAnimation = [MeetingAnimation SharedMeetingAnimation];
+    [self.MeetAnimation popMeetingViewAnimationWithView:self andFirstButton:self.iconButton andSecondButton:self.overButton andthirdButton:self.MinButton
+     ];
+}
+
+
+
+@end

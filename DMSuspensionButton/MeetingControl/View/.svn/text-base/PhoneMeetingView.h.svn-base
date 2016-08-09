@@ -1,0 +1,77 @@
+//
+//  PhoneMeetingView.h
+//  botong
+//
+//  Created by demin on 16/7/12.
+//  Copyright © 2016年 Demin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "RTCButton.h"
+@class MeetingAnimation;
+
+@interface PhoneMeetingView : UIView
+
+//最小化按钮
+@property (weak, nonatomic) IBOutlet UIButton *MinButton;
+//添加成员
+@property (weak, nonatomic) IBOutlet UIButton *addMemberButton;
+//结束会议
+@property (weak, nonatomic) IBOutlet UIButton *overButton;
+//会议纪要
+//@property (weak, nonatomic) IBOutlet UIButton *minutesButton;
+//全员静音
+@property (weak, nonatomic) IBOutlet UIButton *muteButton;
+//主持人
+@property (weak, nonatomic) IBOutlet UILabel *compereLabel;
+//会议时间段
+@property (weak, nonatomic) IBOutlet UILabel *mettingTimeSlot;
+//会议计时
+@property (weak, nonatomic) IBOutlet UILabel *mettingTimer;
+//成员进出详情
+@property (weak, nonatomic) IBOutlet UITableView *memberPassDetailsTableView;
+//成员头像的集合视图
+@property (weak, nonatomic) IBOutlet UICollectionView *memberIconsCollectionView;
+//头像
+@property (weak, nonatomic) IBOutlet UIButton *iconButton;
+//静音按钮的标题
+@property (weak, nonatomic) IBOutlet UILabel *muteLabel;
+
+/**
+ *  0.主持人点自己
+ *  1.主持人点击成员
+ *  2.自己点自己
+ */
+@property (nonatomic, assign) NSInteger alertState;
+
+@property (nonatomic, copy) NSString *alertMobile;
+
+@property (nonatomic, strong) NSMutableArray *MeetDataArray;
+@property (nonatomic, strong) MeetingAnimation *MeetAnimation;
+@property (nonatomic, strong) NSTimer * timer;
+@property (nonatomic, assign) CGFloat currentTime;
+//会议开始的时间距离1970年的时间间隔
+@property (nonatomic, assign) NSTimeInterval meetingStartTime;
+//会议结束的时间距离1970年的时间间隔
+@property (nonatomic, assign) NSTimeInterval meetingEndTime;
+//会议时间
+@property (nonatomic, copy) NSString *meetingTime;
+@property (nonatomic, strong) NSDictionary *meetingDict;
+
+//参会者手机号 英文#分割 最多16人
+@property (nonatomic, copy) NSMutableString *tosString;
+
+/**
+ *  会议创建者的静音状态 0/1
+ */
+@property (nonatomic, strong) NSNumber *mute;
+/**
+ *  @{@"msg" : dict[@"msg"], @"time" : dict[@"time"]}
+ */
+@property (nonatomic, strong) NSMutableArray<NSDictionary *> *stateDataArrM;
+
+
+- (void)popMeetingView;
+
+- (void)addSubViews;
+@end
